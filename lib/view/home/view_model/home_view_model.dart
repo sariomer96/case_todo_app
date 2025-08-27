@@ -27,6 +27,24 @@ final class HomeViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+
+  Future<void> getAllTask() async {
+    try { 
+          _isLoading = true;
+            notifyListeners();
+
+            _tasks = await _taskRepository.getAllTasks();
+
+            _isLoading = false;
+            notifyListeners();
+                
+    } catch (e) {
+          print('Bir hata oluştu $e');
+           
+    }
+  
+
+  }
    Future<void> filterByPriority(String priority) async {
     _isLoading = true;
     notifyListeners();

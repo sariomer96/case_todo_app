@@ -1,42 +1,44 @@
 class Task {
   int? id;
-  String task_name;
-  String task_comment;
-  String last_date;
+  String taskName;
+  String? taskComment;
+  String? lastDate;
   String priority;
   String category;
+  bool isFinished;
 
   Task({
     this.id,
-    required this.task_name,
-    required this.task_comment,
-    required this.last_date,
+    required this.taskName,
+     this.taskComment,
+     this.lastDate,
     required this.priority,
     required this.category,
+     this.isFinished = false,
+  
   });
 
   Map<String, dynamic> toMap() {
-    final map = <String, dynamic>{
-      'task_name': task_name,
-      'task_comment': task_comment,
-      'last_date': last_date,
+    return {
+      'id': id,
+      'task_name': taskName,
+      'task_comment': taskComment,
+      'last_date': lastDate,
       'priority': priority,
       'category': category,
+      'is_finished': isFinished ? 1 : 0,
     };
-    if (id != null) {
-      map['id'] = id;
-    }
-    return map;
   }
 
-  factory Task.fromMap(Map<String, dynamic> map) {
+factory Task.fromMap(Map<String, dynamic> map) {
     return Task(
       id: map['id'],
-      task_name: map['task_name'],
-      task_comment: map['task_comment'],
-      last_date: map['last_date'],
+      taskName: map['task_name'],
+      taskComment: map['task_comment'],
+      lastDate: map['last_date'],
       priority: map['priority'],
       category: map['category'],
+      isFinished: map['is_finished'] == 1, 
     );
   }
 }

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:spexco_todo_app/data/Sqlite/db_manager.dart';
+import 'package:spexco_todo_app/view/home/view_model/home_view_model.dart';
 import 'package:spexco_todo_app/view/task_detail/task_page/task_form_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -9,9 +12,11 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-   
+    
+     
 @override
 Widget build(BuildContext context) {
+  
   return Scaffold(
     appBar: AppBar(
       title: const Text('Todo'),
@@ -23,36 +28,31 @@ Widget build(BuildContext context) {
       ],
     ),
     floatingActionButton: FloatingActionButton(
-      onPressed: () {
-                showModalBottomSheet(
-                  context: context,
-                  isScrollControlled: true, 
-                  backgroundColor: Colors.transparent, 
-             builder: (BuildContext context) {
-        return DraggableScrollableSheet(
-       initialChildSize: 0.5, 
-      minChildSize: 0.25,
-      maxChildSize: 0.95,
-      expand: false,
-      builder: (context, scrollController) {
-        return Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-          ),
-          child: SingleChildScrollView(
-            controller: scrollController,
-            child: const TaskFormPage()
-          ),
-        );
-      },
-    );
-  },
-);
+     onPressed: () {
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    builder: (context) {
+      return DraggableScrollableSheet(
+        initialChildSize: 0.75,  
+        minChildSize: 0.25,     
+        maxChildSize: 0.75,     
+        expand: false,
+        builder: (context, scrollController) {
+          return Container(
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            ),
+            child: const TaskFormPage(),
+          );
+        },
+      );
+    },
+  );
+},
 
-
-
-      },
       child: const Icon(Icons.add),
     ),
   );
@@ -101,7 +101,6 @@ Widget build(BuildContext context) {
     );
   }
 }
-
 class TaskListView extends StatefulWidget {
   const TaskListView({super.key});
 
@@ -110,67 +109,62 @@ class TaskListView extends StatefulWidget {
 }
 
 class _TaskListViewState extends State<TaskListView> {
-  List<String> tasks = List.generate(5, (index) => 'Görev ${index + 1}');
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<HomeViewModel>().getAllTask();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final viewModel = context.watch<HomeViewModel>();
+
     return Expanded(
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: ListView.builder(
-          itemCount: tasks.length,
+          itemCount: viewModel.tasks.length,
           itemBuilder: (context, index) {
-            return ListTile(
-              leading: CircleAvatar(
-                child: Text('${index + 1}'),
+            final task = viewModel.tasks[index];
+
+            return Dismissible(
+              key: ValueKey(task.id),  
+              direction: DismissDirection.endToStart,  
+              background: Container(
+                color: Colors.red,
+                alignment: Alignment.centerRight,
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: const Icon(Icons.delete, color: Colors.white),
               ),
-              title: Text(tasks[index]),
-              
+              onDismissed: (direction) {
+
+                  if (task.id != null) { 
+                    context.read<HomeViewModel>().removeTask(task.id!);
+                  }
+            
+                setState(() {
+                  viewModel.tasks.removeAt(index);
+                });
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                    
+                  SnackBar(content: Text('${task.taskName} Silindi',textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyLarge),
+                  backgroundColor: Colors.red,),
+                  
+                );
+              },
+              child: ListTile(
+                leading: CircleAvatar(
+                  child: Text('${index + 1}'),
+                ),
+                title: Text(task.taskName),
+              ),
             );
           },
-        ),
-      ),
-    );
-  }
-}
-
-
-
-
-
-
-
-
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-  final String title;
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'Click here to try the Modal Bottom Sheet ',
-            ),
-            const SizedBox(
-              height: 20,
-            ),
-            ElevatedButton(
-                onPressed: () {
-                 
-                },
-                child: const Text("Click here"))
-          ],
         ),
       ),
     );

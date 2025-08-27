@@ -27,7 +27,8 @@ final class DbManager {
                 task_comment TEXT  NULL,
                 last_date TEXT  NULL,
                 priority TEXT NOT NULL,
-                category TEXT NOT NULL
+                category TEXT NOT NULL,
+                is_finished INTEGER NOT NULL
               )
             ''');
       } catch(e) {
@@ -54,6 +55,7 @@ final class DbManager {
     Future<int> addTask(Task task) async {
       try {
         final db = await instance.database;
+        print(db.database);
         return await db.insert('tasks', task.toMap());
       } catch (e) {
         print("add task error: $e");
@@ -77,13 +79,13 @@ final class DbManager {
     }
   }
 
-  Future<int> removeTask(Task task) async { 
+  Future<int> removeTask(int id) async { 
     try {
         final db = await instance.database;
        return await db.delete(
           'tasks',
            where: 'id = ?',
-           whereArgs: [task.id],
+           whereArgs: [id],
         
         );
     } catch(e) {
@@ -116,10 +118,28 @@ final class DbManager {
     } catch (e) {
       print("getAllTasks error: $e");
       return [];
-    }
+    } 
  }
 
-
+  Future<List<Task>> getbyPriority(String priority) async{ 
+          try {
+      final db = await instance.database;
+      final result = await db.query(
+        'tasks',
+         orderBy: 'id DESC',
+         where: 'priority = ?',
+         whereArgs: [priority],
+         );
+      return result.map((json) => Task.fromMap(json)).toList();
+    } catch (e) {
+      print("getAllTasks error: $e");
+      return [];
+    } 
+ }
+ Future close() async {
+    final db = await instance.database;
+    db.close();
+  }
 }
 
 
