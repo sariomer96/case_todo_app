@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class AddPage extends StatefulWidget {
-  const AddPage({super.key});
+class TaskFormPage extends StatefulWidget {
+  const TaskFormPage({super.key});
 
   @override
-  State<AddPage> createState() => _AddPageState();
+  State<TaskFormPage> createState() => _TaskFormPageState();
 }
 
-class _AddPageState extends State<AddPage> {
+class _TaskFormPageState extends State<TaskFormPage> {
 final TextEditingController _nameController = TextEditingController();
    final TextEditingController _commentController = TextEditingController();
     DateTime? _selectedDate;

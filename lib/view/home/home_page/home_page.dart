@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:spexco_todo_app/view/task_detail/task_page/task_add_page.dart';
+import 'package:spexco_todo_app/view/task_detail/task_page/task_form_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -42,7 +42,7 @@ Widget build(BuildContext context) {
           ),
           child: SingleChildScrollView(
             controller: scrollController,
-            child: const AddPage()
+            child: const TaskFormPage()
           ),
         );
       },
