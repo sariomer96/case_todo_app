@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:spexco_todo_app/view/task_detail/task_page/task_add_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -8,23 +9,57 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Todo'),
-      ),
-      body: Column(
-        children: [_searchFilter(), const TaskListView()],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: (){},
-        child: const Icon(Icons.add),
-        ),
-        
+   
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      title: const Text('Todo'),
+    ),
+    body: Column(
+      children: [
+        _searchFilter(),
+        const TaskListView(),
+      ],
+    ),
+    floatingActionButton: FloatingActionButton(
+      onPressed: () {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true, 
+                  backgroundColor: Colors.transparent, 
+             builder: (BuildContext context) {
+        return DraggableScrollableSheet(
+       initialChildSize: 0.5, 
+      minChildSize: 0.25,
+      maxChildSize: 0.95,
+      expand: false,
+      builder: (context, scrollController) {
+        return Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          child: SingleChildScrollView(
+            controller: scrollController,
+            child: const AddPage()
+          ),
+        );
+      },
     );
-  }
+  },
+);
 
+
+
+      },
+      child: const Icon(Icons.add),
+    ),
+  );
+}
+
+    
+    
   Row _searchFilter() {
     return Row(
       children: [
@@ -92,6 +127,50 @@ class _TaskListViewState extends State<TaskListView> {
               
             );
           },
+        ),
+      ),
+    );
+  }
+}
+
+
+
+
+
+
+
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key, required this.title});
+  final String title;
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: Text(widget.title),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            const Text(
+              'Click here to try the Modal Bottom Sheet ',
+            ),
+            const SizedBox(
+              height: 20,
+            ),
+            ElevatedButton(
+                onPressed: () {
+                 
+                },
+                child: const Text("Click here"))
+          ],
         ),
       ),
     );
