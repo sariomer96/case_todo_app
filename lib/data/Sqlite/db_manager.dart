@@ -116,7 +116,24 @@ final class DbManager {
          );
       return result.map((json) => Task.fromMap(json)).toList();
     } catch (e) {
-      print("getAllTasks error: $e");
+      print("getByCategory error: $e");
+      return [];
+    } 
+ }
+
+
+  Future<List<Task>> getbyCategoryWithPriority(String category, String priority) async{ 
+          try {
+      final db = await instance.database;
+      final result = await db.query(
+        'tasks',
+         orderBy: 'id DESC',
+         where: 'category = ?  AND priority = ?',
+         whereArgs: [category,priority],
+         );
+      return result.map((json) => Task.fromMap(json)).toList();
+    } catch (e) {
+      print("getbyCategoryWithPriority error: $e");
       return [];
     } 
  }

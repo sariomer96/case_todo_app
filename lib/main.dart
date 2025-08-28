@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:spexco_todo_app/repository/task_repository.dart';
 import 'package:spexco_todo_app/view/home/home_page/home_page.dart';
 import 'package:spexco_todo_app/view/home/view_model/home_view_model.dart';
+import 'package:spexco_todo_app/view/task_detail/view_model/add_task_view_model.dart';
+import 'package:spexco_todo_app/view/task_detail/view_model/edit_task_view_model.dart';
  
 import 'package:spexco_todo_app/view/task_detail/view_model/task_form_view_model.dart';
 
@@ -12,7 +14,8 @@ void main() {
       providers: [
         ChangeNotifierProvider(create: (_) => TaskFormViewModel(TaskRepository())),
         ChangeNotifierProvider(create: (_) => HomeViewModel(TaskRepository())),
-     
+      ChangeNotifierProvider(create: (_) => AddTaskViewModel(TaskRepository())),
+      ChangeNotifierProvider(create: (_) => EditTaskViewModel(TaskRepository())),
       ],
       child: const MyApp(),
     ),
