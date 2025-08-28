@@ -4,8 +4,8 @@ import 'package:spexco_todo_app/repository/task_repository.dart';
 
 import 'package:spexco_todo_app/view/home/home_page/home_page.dart';
 import 'package:spexco_todo_app/view/home/view_model/home_view_model.dart';
-import 'package:spexco_todo_app/view/task_detail/view_model/add_task_view_model.dart';
-import 'package:spexco_todo_app/view/task_detail/view_model/edit_task_view_model.dart';
+import 'package:spexco_todo_app/view/add_task/add_task_view_model/add_task_view_model.dart';
+import 'package:spexco_todo_app/view/edit_task/edit_task_view_model/edit_task_view_model.dart';
 
 void main() {
   runApp(

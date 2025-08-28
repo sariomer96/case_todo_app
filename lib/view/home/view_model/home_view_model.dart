@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:spexco_todo_app/data/Models/task_model.dart';
 import 'package:spexco_todo_app/repository/task_repository.dart';
-import 'package:spexco_todo_app/view/task_detail/base/base_task_form_page.dart';
+import 'package:spexco_todo_app/view/base_task_detail/base_page/base_task_form_page.dart';
 
 final class HomeViewModel extends ChangeNotifier {
   final TaskRepository _taskRepository;

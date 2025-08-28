@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:spexco_todo_app/view/home/view_model/home_view_model.dart';
-import 'package:spexco_todo_app/view/task_detail/base/base_task_form_page.dart';
-import 'package:spexco_todo_app/view/task_detail/view_model/add_task_view_model.dart';
+import 'package:spexco_todo_app/view/base_task_detail/base_page/base_task_form_page.dart';
+import 'package:spexco_todo_app/view/add_task/add_task_view_model/add_task_view_model.dart';
 
 class AddTaskPage extends StatefulWidget {
   const AddTaskPage({super.key});

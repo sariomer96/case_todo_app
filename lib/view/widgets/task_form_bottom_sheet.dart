@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:spexco_todo_app/data/Models/task_model.dart';
 import 'package:spexco_todo_app/view/home/home_page/home_page.dart';
-import 'package:spexco_todo_app/view/task_detail/task_page/add_task_page.dart';
-import 'package:spexco_todo_app/view/task_detail/task_page/edit_task_page.dart';
+import 'package:spexco_todo_app/view/add_task/add_task_page/add_task_page.dart';
+import 'package:spexco_todo_app/view/edit_task/edit_task_page/edit_task_page.dart';
 
 class TaskFormBottomSheet extends StatelessWidget {
   final Task? task;

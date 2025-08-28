@@ -5,8 +5,8 @@ import 'package:provider/provider.dart';
 
 import 'package:spexco_todo_app/data/Models/task_model.dart';
 import 'package:spexco_todo_app/view/home/view_model/home_view_model.dart';
-import 'package:spexco_todo_app/view/task_detail/base/base_task_form_page.dart';
-import 'package:spexco_todo_app/view/task_detail/view_model/edit_task_view_model.dart';
+import 'package:spexco_todo_app/view/base_task_detail/base_page/base_task_form_page.dart';
+import 'package:spexco_todo_app/view/edit_task/edit_task_view_model/edit_task_view_model.dart';
 
 class EditTaskPage extends StatefulWidget {
   final Task? task;

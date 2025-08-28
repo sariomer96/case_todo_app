@@ -1,6 +1,6 @@
 import 'package:spexco_todo_app/data/Models/task_model.dart';
 import 'package:spexco_todo_app/repository/task_repository.dart';
-import 'base_task_view_model.dart';
+import '../../base_task_detail/base_view_model/base_task_view_model.dart';
 
 final class AddTaskViewModel extends BaseTaskViewModel {
   final TaskRepository _taskRepository;

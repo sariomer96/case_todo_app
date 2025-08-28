@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:spexco_todo_app/Constants/constants.dart';
 import 'package:spexco_todo_app/data/Models/task_model.dart';
-import 'package:spexco_todo_app/view/task_detail/view_model/base_task_view_model.dart';
+import 'package:spexco_todo_app/view/base_task_detail/base_view_model/base_task_view_model.dart';
 
 class BaseTaskFormWidget<T extends BaseTaskViewModel> extends StatefulWidget {
   final String buttonText;
