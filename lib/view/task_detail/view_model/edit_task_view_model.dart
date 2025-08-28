@@ -1,65 +1,29 @@
-import 'package:flutter/material.dart';
 import 'package:spexco_todo_app/data/Models/task_model.dart';
 import 'package:spexco_todo_app/repository/task_repository.dart';
+import 'base_task_view_model.dart';
 
-final class EditTaskViewModel extends ChangeNotifier {
- final TaskRepository _taskRepository;
-  
+final class EditTaskViewModel extends BaseTaskViewModel {
+  final TaskRepository _taskRepository;
+  Task? _task;
+
   EditTaskViewModel(this._taskRepository);
 
   Task? get task => _task;
-  bool isLoading = false;
-  Task? _task;
-  String? _selectedCategory;
-  String? _selectedPriority;
-  DateTime? _selectedDate;
-
-   String? get selectedCategory => _selectedCategory;
-  String? get selectedPriority => _selectedPriority;
-  DateTime? get selectedDate => _selectedDate;
- 
- 
-  Future<bool> editTask(Task task) async {
-    try {
-      isLoading = true;
-      notifyListeners();
-      await _taskRepository.editTask(task);
-      return true;
-    } catch (e) {
-      print("edit task error: $e");
-      return false;
-    } finally {
-      isLoading = false;
-      notifyListeners();
-    }
-  }
-  
-Task createModel(String taskName, String? taskComment, String? lastDate, String priority, String category) {
-    return Task(
-      taskName: taskName,
-      taskComment: taskComment,
-      lastDate: lastDate,
-      priority: priority,
-      category: category,
-    );
-  }
 
   void setTask(Task? task) {
     _task = task;
-    notifyListeners();
+    if (task != null) {
+      // Formu doldur
+      setCategory(task.category ?? "Varsayılan");
+      setPriority(task.priority ?? "Düşük");
+      setDate(task.lastDate != null ? DateTime.tryParse(task.lastDate!) : null);
+    }
   }
-void setCategory(String? category) {
-  _selectedCategory = category;
-  notifyListeners();
-}
 
-void setPriority(String? priority) {
-  _selectedPriority = priority;
-  notifyListeners();
-}
-
-  void setDate(DateTime? date) {
-    _selectedDate = date;
-    notifyListeners();
+  Future<bool> editTask(Task updatedTask) async {
+    return await runWithLoading(() async {
+      await _taskRepository.editTask(updatedTask);
+      return true;
+    });
   }
 }

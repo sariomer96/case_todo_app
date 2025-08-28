@@ -25,7 +25,7 @@ final class HomeViewModel extends ChangeNotifier {
    Future<void> removeTask(int id) async {
     await _taskRepository.removeTask(id);   
   }
-  
+   
   Future<void> filterByCategory(String category) async {
     _isLoading = true;
     notifyListeners();
@@ -35,7 +35,7 @@ final class HomeViewModel extends ChangeNotifier {
     _isLoading = false;
     notifyListeners();
   } 
-
+        
       Future<void> filterByCategoryWithPriority() async {
         _isLoading = true;
         notifyListeners();

@@ -7,9 +7,9 @@ import 'package:spexco_todo_app/repository/task_repository.dart';
 import 'package:spexco_todo_app/view/home/view_model/home_view_model.dart';
 import 'package:spexco_todo_app/view/task_detail/task_page/add_task_page.dart';
 import 'package:spexco_todo_app/view/task_detail/task_page/edit_task_page.dart';
+import 'package:spexco_todo_app/view/task_detail/view_model/add_task_view_model.dart';
 import 'package:spexco_todo_app/view/task_detail/view_model/edit_task_view_model.dart';
-
-import 'package:spexco_todo_app/view/task_detail/view_model/task_form_view_model.dart';
+ 
 
 enum TaskPageEnum {
   addForm,
@@ -41,13 +41,12 @@ class _HomePageState extends State<HomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          final taskViewModel = context.read<TaskFormViewModel>();
-          taskViewModel.setTask(null);
+          
           showModalBottomSheet(
             context: context,
             isScrollControlled: true,
             backgroundColor: Colors.transparent,
-            builder: (_) => const TaskFormBottomSheet(
+            builder: (_) => const TaskFormBottomSheet( 
                 selectedFormPage: TaskPageEnum.addForm),
           );
         },
@@ -266,14 +265,15 @@ class _TaskListViewState extends State<TaskListView> {
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: const Icon(Icons.delete, color: Colors.white),
               ),
-              onDismissed: (direction) {
+              onDismissed: (direction) async {
                 if (task.id != null) {
-                  context.read<HomeViewModel>().removeTask(task.id!);
-                }
-
-                setState(() {
+                  await context.read<HomeViewModel>().removeTask(task.id!);
+                  setState(() {
                   viewModel.tasks.removeAt(index);
                 });
+                }
+
+                
 
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
@@ -285,20 +285,21 @@ class _TaskListViewState extends State<TaskListView> {
                 );
               },
               child: ListTile(
-                onTap: () {
+              onTap: () {
                   final editViewModel = context.read<EditTaskViewModel>();
-
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    editViewModel.setTask(task);
-                  });
-                  showModalBottomSheet(
+           
+                  editViewModel.setTask(task);
+                  
+                  showModalBottomSheet( 
                     context: context,
                     isScrollControlled: true,
                     backgroundColor: Colors.transparent,
-                    builder: (_) => const TaskFormBottomSheet(
-                        selectedFormPage: TaskPageEnum.editForm),
+                    builder: (_) => TaskFormBottomSheet(
+                      task: task,
+                      selectedFormPage: TaskPageEnum.editForm,
+                    ),
                   );
-                },
+},
                 leading: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -353,7 +354,11 @@ class TaskFormBottomSheet extends StatelessWidget {
         content = const AddTaskPage();
         break;
       case TaskPageEnum.editForm:
-        content = const EditTaskPage();
+            if (task != null) { 
+              content =  EditTaskPage(task: task!);
+            } else { 
+              throw Exception('Task null error');
+            } 
         break;
     }
     return DraggableScrollableSheet(

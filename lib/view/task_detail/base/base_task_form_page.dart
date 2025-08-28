@@ -1,169 +1,163 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:spexco_todo_app/Constants/constants.dart';
 import 'package:spexco_todo_app/data/Models/task_model.dart';
-import 'package:spexco_todo_app/view/home/view_model/home_view_model.dart';
-import 'package:spexco_todo_app/view/task_detail/task_page/add_task_page.dart';
-import 'package:spexco_todo_app/view/task_detail/view_model/add_task_view_model.dart';
-import 'package:spexco_todo_app/view/task_detail/view_model/task_form_view_model.dart';
-import 'package:provider/provider.dart';
+import 'package:spexco_todo_app/view/task_detail/view_model/base_task_view_model.dart';
 
-abstract class BaseTaskFormPage extends StatefulWidget {
-  const BaseTaskFormPage({super.key});
+class BaseTaskFormWidget<T extends BaseTaskViewModel> extends StatefulWidget {
+  final String buttonText;
+  final Task? task;
+  final Future<bool> Function(T vm, Task task) onSubmit;
+
+  const BaseTaskFormWidget({
+    super.key,
+    required this.buttonText,
+    required this.onSubmit,
+    this.task,
+  });
 
   @override
-  State<BaseTaskFormPage> createState();
+  State<BaseTaskFormWidget<T>> createState() => _BaseTaskFormWidgetState<T>();
 }
 
-abstract class BaseTaskFormPageState<T extends BaseTaskFormPage> extends State<T> {
-  late TextEditingController nameController;
-  late TextEditingController commentController;
+class _BaseTaskFormWidgetState<T extends BaseTaskViewModel>
+    extends State<BaseTaskFormWidget<T>> {
+  late TextEditingController _nameController;
+  late TextEditingController _commentController;
 
   @override
   void initState() {
     super.initState();
-    nameController = TextEditingController();
-    commentController = TextEditingController();
+   
 
-   WidgetsBinding.instance.addPostFrameCallback((_) {
-  final viewModel = context.read<TaskFormViewModel>();
+    _nameController =
+        TextEditingController(text: widget.task?.taskName ?? "");
+    _commentController =
+        TextEditingController(text: widget.task?.taskComment ?? "");
 
-  if (viewModel.task != null) {
+     WidgetsBinding.instance.addPostFrameCallback((_) {
+    final vm = context.read<T>();
+
+    if (widget.task == null) {
+     
+      vm.setDate(null);                   
+      vm.setCategory("Varsayılan");      
+      vm.setPriority("Düşük");            
+    } else {
+   
+      vm.setDate(widget.task!.lastDate != null
+          ? DateTime.tryParse(widget.task!.lastDate!)
+          : null);
+      vm.setCategory(widget.task!.category ?? "Varsayılan");
+      vm.setPriority(widget.task!.priority ?? "Düşük");
+    }
+  });
+
     
-    nameController.text = viewModel.task!.taskName;
-    commentController.text = viewModel.task!.taskComment ?? '';
-
-    var selectedDate = viewModel.task!.lastDate != null
-        ? DateTime.tryParse(viewModel.task!.lastDate!)
-        : null;
-
-    viewModel.setCategory(viewModel.task!.category ?? 'Varsayılan');
-    viewModel.setPriority(viewModel.task!.priority ?? 'Düşük');
-    viewModel.setDate(selectedDate);
   }
-});
-
-  }
-
-  
 
   @override
   void dispose() {
-    nameController.dispose();
-    commentController.dispose();
+    _nameController.dispose();
+    _commentController.dispose();
     super.dispose();
   }
 
-  String get buttonText;
-  Future<bool> onButtonPressed();
-  void onSuccess();
-  void onError();
-
   @override
   Widget build(BuildContext context) {
-    final taskViewModel = context.watch<TaskFormViewModel>();
-    final homeViewModel = context.read<HomeViewModel>();
-    
-    return Scaffold(
-      body: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
+    return Consumer<T>(
+      builder: (context, vm, _) {
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              IconButton(
-                onPressed: () {
-                  Navigator.pop(context);
+              TextField(
+                controller: _nameController,
+                decoration: const InputDecoration(labelText: "Görev Adı"),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _commentController,
+                decoration: const InputDecoration(labelText: "Açıklama"),
+                maxLines: 5,
+              ),
+              const SizedBox(height: 16),
+
+              const Text("Kategori"),
+              Wrap(
+                spacing: 8,
+                children: Constants.categories.map((cat) {
+                  return ChoiceChip(
+                    label: Text(cat),
+                    selected: vm.selectedCategory == cat,
+                    onSelected: (_) => vm.setCategory(cat),
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 16),
+
+              const Text("Öncelik"),
+              Wrap(
+                spacing: 8,
+                children: Constants.priorityLevels.map((p) {
+                  final color = Constants.priorityColors[p] ?? Colors.grey;
+                  return ChoiceChip(
+                    
+                    label: Text(p),
+                    selected: vm.selectedPriority == p,
+                    selectedColor: color.withOpacity(0.5),
+                    onSelected: (_) => vm.setPriority(p),
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 16),
+
+              ElevatedButton.icon(
+                onPressed: () async {
+                  final pickedDate = await showDatePicker(
+                    context: context,
+                    initialDate: vm.selectedDate ?? DateTime.now(),
+                    firstDate: DateTime(2025),
+                    lastDate: DateTime(2100),
+                  );
+                  if (pickedDate != null) vm.setDate(pickedDate);
                 },
-                icon: const Icon(
-                  Icons.close,
-                  color: Colors.black,
+                icon: const Icon(Icons.calendar_month),
+                label: Text(
+                  vm.selectedDate != null
+                      ? "Seçilen Tarih: ${vm.selectedDate!.day}/${vm.selectedDate!.month}/${vm.selectedDate!.year}"
+                      : "Bitiş Tarihi",
+                ),
+              ),
+              const SizedBox(height: 32),
+
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: vm.isLoading
+                      ? null
+                      : () async {
+                          final task = vm.createModel(
+                            _nameController.text,
+                            _commentController.text,
+                            id: widget.task?.id,
+                          );
+
+                          final success = await widget.onSubmit(vm, task);
+                          if (success && context.mounted) {
+                            Navigator.pop(context);
+                          }
+                        },
+                  child: vm.isLoading
+                      ? const CircularProgressIndicator()
+                      : Text(widget.buttonText),
                 ),
               ),
             ],
           ),
-          buildNameField(nameController),
-          buildCommentField(commentController),
-          buildDateButton(),
-          const Text('Kategori'),
-          buildCategoryChips(),
-          const SizedBox(height: 16),
-          const Text('ÖNCELİK'),
-          buildPriorityChips(),
-          const SizedBox(height: 50),
-          ElevatedButton(
-            onPressed:  
-                 () async {
-                    bool isSuccess = await onButtonPressed();
-
-                    if (isSuccess) {
-                      await homeViewModel.getAllTask();
-                      
-                      onSuccess();
-                      Navigator.of(context).pop();
-                    } else {
-                      onError();
-                    }
-                  },
-            child: taskViewModel.isLoading
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Colors.red,
-                    ),
-                  )
-                : Text(buttonText),
-          ),
-        ],
-      ),
+        );
+      },
     );
-  }
-
-  Wrap buildPriorityChips();
-
-   Wrap buildCategoryChips();
-    
- 
-
-  ElevatedButton buildDateButton();
-
-  Padding buildCommentField(TextEditingController controller) {
-    return Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: TextField(
-            controller: controller,
-            decoration: InputDecoration(
-              labelText: "Açıklama",
-              alignLabelWithHint: true,
-              filled: true,
-              fillColor: Colors.white,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            maxLines: 5,
-            minLines: 3,
-            keyboardType: TextInputType.multiline,
-          ),
-        );
-  }
-
-  Padding buildNameField(TextEditingController nameController) {
-    return Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: TextField(
-            controller: nameController,
-            decoration: InputDecoration(
-              labelText: "Görev Adı",
-              alignLabelWithHint: true,
-              filled: true,
-              fillColor: Colors.white,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-          ),
-        );
   }
 }
