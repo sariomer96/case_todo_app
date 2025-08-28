@@ -67,7 +67,7 @@ final class HomeViewModel extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     } catch (e) {
-      print('Bir hata oluştu $e');
+      print('allTask error $e');
     }
   }
 
