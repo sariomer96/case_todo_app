@@ -35,19 +35,32 @@ final class HomeViewModel extends ChangeNotifier {
     _isLoading = false;
     notifyListeners();
   } 
-        
-      Future<void> filterByCategoryWithPriority() async {
-        _isLoading = true;
-        notifyListeners();
 
-        _tasks = await _taskRepository.getTasksByCategoryWithPriority(
-          _selectedCategory ?? ''
-          , _selectedPriority ?? '' );
+    Future<void> searchTask(String query) async {
+    if (query.isEmpty) {
+      _tasks = _allTasks; 
+    } else {
+      _tasks = _allTasks
+          .where((task) =>
+              task.taskName.toLowerCase().contains(query.toLowerCase()))
+          .toList();
+    }
+    notifyListeners();
+  }
 
-        
-        _isLoading = false;
-        notifyListeners();
-      }
+      
+    Future<void> filterByCategoryWithPriority() async {
+      _isLoading = true;
+      notifyListeners();
+
+      _tasks = await _taskRepository.getTasksByCategoryWithPriority(
+        _selectedCategory ?? ''
+        , _selectedPriority ?? '' );
+
+      
+      _isLoading = false;
+      notifyListeners();
+    }
 
   Future<void> getAllTask() async {
     try { 
