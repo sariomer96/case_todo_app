@@ -1,8 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:spexco_todo_app/data/Models/task_model.dart';
 import 'package:spexco_todo_app/data/Sqlite/db_manager.dart';
+import 'package:spexco_todo_app/repository/task_repository.dart';
 import 'package:spexco_todo_app/view/home/view_model/home_view_model.dart';
-import 'package:spexco_todo_app/view/task_detail/task_page/task_form_page.dart';
+import 'package:spexco_todo_app/view/task_detail/task_page/add_task_page.dart';
+import 'package:spexco_todo_app/view/task_detail/task_page/edit_task_page.dart';
+
+import 'package:spexco_todo_app/view/task_detail/view_model/task_form_view_model.dart'; 
+
+  enum TaskPageEnum {
+   addForm, 
+   editForm, 
+}
+
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -13,7 +24,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
     
-     
+  
 @override
 Widget build(BuildContext context) {
   
@@ -28,37 +39,22 @@ Widget build(BuildContext context) {
       ],
     ),
     floatingActionButton: FloatingActionButton(
-     onPressed: () {
-  showModalBottomSheet(
-    context: context,
-    isScrollControlled: true,
-    backgroundColor: Colors.transparent,
-    builder: (context) {
-      return DraggableScrollableSheet(
-        initialChildSize: 0.75,  
-        minChildSize: 0.25,     
-        maxChildSize: 0.75,     
-        expand: false,
-        builder: (context, scrollController) {
-          return Container(
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-            ),
-            child: const TaskFormPage(),
+      onPressed: () {
+            final taskViewModel = context.read<TaskFormViewModel>();
+          taskViewModel.setTask(null);  
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            backgroundColor: Colors.transparent,
+            builder: (_) => const TaskFormBottomSheet(selectedFormPage: TaskPageEnum.addForm),
           );
         },
-      );
-    },
-  );
-},
 
       child: const Icon(Icons.add),
     ),
   );
 }
 
-    
     
   Row _searchFilter() {
     return Row(
@@ -116,20 +112,20 @@ class _TaskListViewState extends State<TaskListView> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<HomeViewModel>().getAllTask();
     });
-  }
-
+  } 
   @override
   Widget build(BuildContext context) {
     final viewModel = context.watch<HomeViewModel>();
-
+    final taskViewModel = context.watch<TaskFormViewModel>();
     return Expanded(
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: ListView.builder(
           itemCount: viewModel.tasks.length,
+          
           itemBuilder: (context, index) {
             final task = viewModel.tasks[index];
-
+        
             return Dismissible(
               key: ValueKey(task.id),  
               direction: DismissDirection.endToStart,  
@@ -156,10 +152,53 @@ class _TaskListViewState extends State<TaskListView> {
                   backgroundColor: Colors.red,),
                   
                 );
+                
               },
               child: ListTile(
-                leading: CircleAvatar(
-                  child: Text('${index + 1}'),
+                onTap: () {   
+                   final taskViewModel = context.read<TaskFormViewModel>();
+
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    taskViewModel.setTask(task); 
+                    
+              });
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                    builder: (_) => const TaskFormBottomSheet(selectedFormPage: TaskPageEnum.editForm),
+                  );
+
+                },
+                leading: Row(
+                   mainAxisSize: MainAxisSize.min,
+                  children: [
+                        Checkbox(
+                    value: task.isFinished,
+                    onChanged: (value) async{
+                      setState(() {
+                        task.isFinished = value ?? false;
+                      });
+                      if (task.id != null) {
+                          await taskViewModel.editTask(task);
+                          if(task.isFinished) { 
+                       ScaffoldMessenger.of(context).showSnackBar(
+                        
+                      SnackBar(content: Text('${task.taskName} Tamamlandi'
+                      ,textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodyLarge),
+                      backgroundColor: Colors.green,),
+                );
+                
+                    }
+                           
+                      }
+                    },
+                  ),
+                    CircleAvatar(
+                      child: Text('${index + 1}'),
+                    ),
+                  ],
                 ),
                 title: Text(task.taskName),
               ),
@@ -167,6 +206,44 @@ class _TaskListViewState extends State<TaskListView> {
           },
         ),
       ),
+    );
+
+    
+  }
+}
+
+
+class TaskFormBottomSheet extends StatelessWidget {
+  final Task? task;
+  final TaskPageEnum selectedFormPage;
+  const TaskFormBottomSheet({super.key, this.task, required this.selectedFormPage});
+
+  @override
+  Widget build(BuildContext context) {
+     
+      Widget content;
+        switch (selectedFormPage) {
+          case TaskPageEnum.addForm:
+            content =  const AddTaskPage();
+            break;
+          case TaskPageEnum.editForm:
+            content = const EditTaskPage();
+            break;
+        }
+    return DraggableScrollableSheet(
+      initialChildSize: 0.75,
+      minChildSize: 0.25,
+      maxChildSize: 0.75,
+      expand: false,
+      builder: (context, scrollController) {
+        return Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          child: content
+        );
+      },
     );
   }
 }

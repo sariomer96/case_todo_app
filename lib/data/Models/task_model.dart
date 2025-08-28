@@ -18,6 +18,26 @@ class Task {
   
   });
 
+  Task copyWith({
+    int? id,
+    String? taskName,
+    String? taskComment,
+    String? lastDate,
+    String? priority,
+    String? category,
+    bool? isFinished,
+  }) {
+    return Task(
+      id: id ?? this.id,
+      taskName: taskName ?? this.taskName,
+      taskComment: taskComment ?? this.taskComment,
+      lastDate: lastDate ?? this.lastDate,
+      priority: priority ?? this.priority,
+      category: category ?? this.category,
+      isFinished: isFinished ?? this.isFinished,
+    );
+  }
+
   Map<String, dynamic> toMap() {
     return {
       'id': id,

@@ -5,9 +5,16 @@ import 'package:spexco_todo_app/repository/task_repository.dart';
 
 final class TaskFormViewModel extends ChangeNotifier {
     final TaskRepository _taskRepository;
+    
   bool isLoading = false;
   TaskFormViewModel(this._taskRepository);
-  
+   Task? _task;
+  Task? get task => _task;
+
+  void setTask(Task? task) {
+    _task = task;
+    notifyListeners();
+  }
    Future<bool> addTask(Task task) async {
      try {
       isLoading = true;
@@ -26,8 +33,21 @@ final class TaskFormViewModel extends ChangeNotifier {
     }
  
   } 
-   Future<void> editTask(Task task) async {
-    await _taskRepository.editTask(task);
+   Future<bool> editTask(Task task) async {
+     try {
+      isLoading = true;
+      notifyListeners();
+
+      await _taskRepository.editTask(task);
+             
+      return true; 
+    } catch (e) {
+      print("edit task error: $e");
+      return false;  
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
   }
 
    Task createModel( String taskName, String taskComment,String lastDate, String priority, String category ) { 
