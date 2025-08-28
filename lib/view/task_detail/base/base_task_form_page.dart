@@ -28,32 +28,27 @@ class _BaseTaskFormWidgetState<T extends BaseTaskViewModel>
   @override
   void initState() {
     super.initState();
-   
 
-    _nameController =
-        TextEditingController(text: widget.task?.taskName ?? "");
+    _nameController = TextEditingController(text: widget.task?.taskName ?? "");
     _commentController =
         TextEditingController(text: widget.task?.taskComment ?? "");
 
-     WidgetsBinding.instance.addPostFrameCallback((_) {
-    final vm = context.read<T>();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final vm = context.read<T>();
 
-    if (widget.task == null) {
-     
-      vm.setDate(null);                   
-      vm.setCategory("Varsayılan");      
-      vm.setPriority("Düşük");            
-    } else {
-   
-      vm.setDate(widget.task!.lastDate != null
-          ? DateTime.tryParse(widget.task!.lastDate!)
-          : null);
-      vm.setCategory(widget.task!.category ?? "Varsayılan");
-      vm.setPriority(widget.task!.priority ?? "Düşük");
-    }
-  });
-
-    
+      if (widget.task == null) {
+        vm.setDate(DateTime.now());
+        vm.setCategory("Varsayılan");
+        vm.setPriority("Düşük");
+      } else {
+        var date = DateTime.tryParse(widget.task!.lastDate);
+        if (date != null) {
+          vm.setDate(date);
+        }
+        vm.setCategory(widget.task!.category ?? "Varsayılan");
+        vm.setPriority(widget.task!.priority ?? "Düşük");
+      }
+    });
   }
 
   @override
@@ -68,7 +63,7 @@ class _BaseTaskFormWidgetState<T extends BaseTaskViewModel>
     return Consumer<T>(
       builder: (context, vm, _) {
         return SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(Constants.padding * 2),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -80,10 +75,9 @@ class _BaseTaskFormWidgetState<T extends BaseTaskViewModel>
               TextField(
                 controller: _commentController,
                 decoration: const InputDecoration(labelText: "Açıklama"),
-                maxLines: 5,
+                maxLines: 3,
               ),
               const SizedBox(height: 16),
-
               const Text("Kategori"),
               Wrap(
                 spacing: 8,
@@ -96,14 +90,12 @@ class _BaseTaskFormWidgetState<T extends BaseTaskViewModel>
                 }).toList(),
               ),
               const SizedBox(height: 16),
-
               const Text("Öncelik"),
               Wrap(
                 spacing: 8,
                 children: Constants.priorityLevels.map((p) {
                   final color = Constants.priorityColors[p] ?? Colors.grey;
                   return ChoiceChip(
-                    
                     label: Text(p),
                     selected: vm.selectedPriority == p,
                     selectedColor: color.withOpacity(0.5),
@@ -112,7 +104,6 @@ class _BaseTaskFormWidgetState<T extends BaseTaskViewModel>
                 }).toList(),
               ),
               const SizedBox(height: 16),
-
               ElevatedButton.icon(
                 onPressed: () async {
                   final pickedDate = await showDatePicker(
@@ -126,18 +117,30 @@ class _BaseTaskFormWidgetState<T extends BaseTaskViewModel>
                 icon: const Icon(Icons.calendar_month),
                 label: Text(
                   vm.selectedDate != null
-                      ? "Seçilen Tarih: ${vm.selectedDate!.day}/${vm.selectedDate!.month}/${vm.selectedDate!.year}"
+                      ? "Bitiş Tarihi: ${vm.selectedDate.day}/${vm.selectedDate.month}/${vm.selectedDate.year}"
                       : "Bitiş Tarihi",
                 ),
               ),
               const SizedBox(height: 32),
-
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: vm.isLoading
                       ? null
                       : () async {
+                          if (_nameController.text.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                    'Görev adı boş bırakılamaz. Lütfen eksik alanları doldurunuz.',
+                                    textAlign: TextAlign.center,
+                                    style:
+                                        Theme.of(context).textTheme.bodyMedium),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                            return;
+                          }
                           final task = vm.createModel(
                             _nameController.text,
                             _commentController.text,

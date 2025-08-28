@@ -2,7 +2,7 @@ class Task {
   int? id;
   String taskName;
   String? taskComment;
-  String? lastDate;
+  String lastDate;
   String priority;
   String category;
   bool isFinished;
@@ -10,19 +10,18 @@ class Task {
   Task({
     this.id,
     required this.taskName,
-     this.taskComment,
-     this.lastDate,
+    this.taskComment,
+    required this.lastDate,
     required this.priority,
     required this.category,
-     this.isFinished = false,
-  
+    this.isFinished = false,
   });
 
   Task copyWith({
     int? id,
     String? taskName,
     String? taskComment,
-    String? lastDate,
+    required String lastDate,
     String? priority,
     String? category,
     bool? isFinished,
@@ -31,7 +30,7 @@ class Task {
       id: id ?? this.id,
       taskName: taskName ?? this.taskName,
       taskComment: taskComment ?? this.taskComment,
-      lastDate: lastDate ?? this.lastDate,
+      lastDate: lastDate,
       priority: priority ?? this.priority,
       category: category ?? this.category,
       isFinished: isFinished ?? this.isFinished,
@@ -50,7 +49,7 @@ class Task {
     };
   }
 
-factory Task.fromMap(Map<String, dynamic> map) {
+  factory Task.fromMap(Map<String, dynamic> map) {
     return Task(
       id: map['id'],
       taskName: map['task_name'],
@@ -58,7 +57,7 @@ factory Task.fromMap(Map<String, dynamic> map) {
       lastDate: map['last_date'],
       priority: map['priority'],
       category: map['category'],
-      isFinished: map['is_finished'] == 1, 
+      isFinished: map['is_finished'] == 1,
     );
   }
 }

@@ -10,7 +10,7 @@ final class AddTaskViewModel extends BaseTaskViewModel {
   Future<bool> addTask(Task task) async {
     return await runWithLoading(() async {
       await _taskRepository.addTask(task);
-      
+
       return true;
     });
   }

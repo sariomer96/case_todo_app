@@ -6,11 +6,11 @@ abstract class BaseTaskViewModel extends ChangeNotifier {
 
   String _selectedCategory = "Varsayılan";
   String _selectedPriority = "Düşük";
-  DateTime? _selectedDate;
+  DateTime _selectedDate = DateTime.now();
 
   String get selectedCategory => _selectedCategory;
   String get selectedPriority => _selectedPriority;
-  DateTime? get selectedDate => _selectedDate;
+  DateTime get selectedDate => _selectedDate;
 
   void setCategory(String category) {
     _selectedCategory = category;
@@ -22,7 +22,7 @@ abstract class BaseTaskViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setDate(DateTime? date) {
+  void setDate(DateTime date) {
     _selectedDate = date;
     notifyListeners();
   }
@@ -32,7 +32,7 @@ abstract class BaseTaskViewModel extends ChangeNotifier {
       id: id,
       taskName: taskName,
       taskComment: taskComment,
-      lastDate: _selectedDate?.toIso8601String(),
+      lastDate: _selectedDate.toIso8601String(),
       priority: _selectedPriority,
       category: _selectedCategory,
     );

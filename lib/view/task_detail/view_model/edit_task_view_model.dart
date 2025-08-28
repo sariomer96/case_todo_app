@@ -13,10 +13,13 @@ final class EditTaskViewModel extends BaseTaskViewModel {
   void setTask(Task? task) {
     _task = task;
     if (task != null) {
-      // Formu doldur
       setCategory(task.category ?? "Varsayılan");
       setPriority(task.priority ?? "Düşük");
-      setDate(task.lastDate != null ? DateTime.tryParse(task.lastDate!) : null);
+      var date = DateTime.tryParse(task.lastDate);
+
+      if (date != null) {
+        setDate(date);
+      }
     }
   }
 

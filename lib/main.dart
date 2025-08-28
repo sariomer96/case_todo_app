@@ -1,47 +1,43 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:spexco_todo_app/repository/task_repository.dart';
+
 import 'package:spexco_todo_app/view/home/home_page/home_page.dart';
 import 'package:spexco_todo_app/view/home/view_model/home_view_model.dart';
 import 'package:spexco_todo_app/view/task_detail/view_model/add_task_view_model.dart';
 import 'package:spexco_todo_app/view/task_detail/view_model/edit_task_view_model.dart';
- 
- 
 
 void main() {
   runApp(
     MultiProvider(
       providers: [
-     
-        ChangeNotifierProvider(create: (_) => HomeViewModel(TaskRepository())),
-      ChangeNotifierProvider(create: (_) => AddTaskViewModel(TaskRepository())),
-      ChangeNotifierProvider(create: (_) => EditTaskViewModel(TaskRepository())),
+        ChangeNotifierProvider(
+            create: (_) => HomeViewModel(TaskRepository())),
+        ChangeNotifierProvider(
+            create: (_) => AddTaskViewModel(TaskRepository())),
+        ChangeNotifierProvider(
+            create: (_) => EditTaskViewModel(TaskRepository())),
       ],
       child: const MyApp(),
     ),
-    );
+  );
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Spexco Todo App',
       initialRoute: '/',
-      routes: { 
-          '/': (context) => const HomePage(),
-       
+      routes: {
+        '/': (context) => const HomePage(),
       },
       theme: ThemeData(
-        
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueGrey),
         useMaterial3: true,
-        
       ),
-  
     );
   }
 }

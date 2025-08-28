@@ -22,25 +22,26 @@ class EditTaskPage extends StatefulWidget {
 class _EditTaskPageState extends State<EditTaskPage> {
   @override
   void initState() {
-    super.initState(); 
+    super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.task != null) {
-        Provider.of<EditTaskViewModel>(context, listen: false).setTask(widget.task!);
+        Provider.of<EditTaskViewModel>(context, listen: false)
+            .setTask(widget.task!);
       }
     });
   }
 
   @override
   Widget build(BuildContext context) {
-      var homeViewModel = context.watch<HomeViewModel>();
+    var homeViewModel = context.watch<HomeViewModel>();
     return Scaffold(
-      appBar: AppBar(title: const Text("Görev Düzenle")),
+      appBar: AppBar(centerTitle: true, title: const Text("Görev Düzenle")),
       body: BaseTaskFormWidget<EditTaskViewModel>(
         buttonText: "Güncelle",
         task: widget.task,
         onSubmit: (vm, updatedTask) async {
           final success = await vm.editTask(updatedTask);
-            await homeViewModel.getAllTask();
+          await homeViewModel.getAllTask();
           if (success && context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text("Görev güncellendi")),

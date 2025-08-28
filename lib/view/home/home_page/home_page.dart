@@ -2,13 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:spexco_todo_app/Constants/constants.dart';
 import 'package:spexco_todo_app/data/Models/task_model.dart';
-import 'package:spexco_todo_app/data/Sqlite/db_manager.dart';
-import 'package:spexco_todo_app/repository/task_repository.dart';
 import 'package:spexco_todo_app/view/home/view_model/home_view_model.dart';
 import 'package:spexco_todo_app/view/task_detail/task_page/add_task_page.dart';
 import 'package:spexco_todo_app/view/task_detail/task_page/edit_task_page.dart';
-import 'package:spexco_todo_app/view/task_detail/view_model/add_task_view_model.dart';
 import 'package:spexco_todo_app/view/task_detail/view_model/edit_task_view_model.dart';
+import 'package:spexco_todo_app/view/widgets/task_form_bottom_sheet.dart';
+import 'package:spexco_todo_app/view/widgets/task_list_widget.dart';
 
 enum TaskPageEnum {
   addForm,
@@ -68,6 +67,7 @@ class _HomePageState extends State<HomePage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   AppBar(
+                    centerTitle: true,
                     title: const Text("Filtrele"),
                     automaticallyImplyLeading: false,
                     actions: [
@@ -79,15 +79,17 @@ class _HomePageState extends State<HomePage> {
                   ),
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.all(Constants.padding),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          const SizedBox(height: 24),
                           const Text(
-                            "Kategori",
+                            "Kategoriler",
                             style: TextStyle(
                                 fontSize: 16, fontWeight: FontWeight.bold),
                           ),
+                          const SizedBox(height: 8),
                           Selector<HomeViewModel, String?>(
                             selector: (context, vm) => vm.selectedCategory,
                             builder: (context, selectedCategory, child) {
@@ -112,7 +114,7 @@ class _HomePageState extends State<HomePage> {
                           ),
                           const SizedBox(height: 24),
                           const Text(
-                            "Öncelik",
+                            "Öncelik Seviyesi",
                             style: TextStyle(
                                 fontSize: 16, fontWeight: FontWeight.bold),
                           ),
@@ -149,9 +151,12 @@ class _HomePageState extends State<HomePage> {
                                 viewModel.setPriority('');
                                 viewModel.setCategory('');
                               },
-                              child: const Text('Filtre Temizle')),
-                          Align(
-                            alignment: Alignment.bottomCenter,
+                              child: const Text('Filtreyi Temizle')),
+                          const SizedBox(
+                            height: 16,
+                          ),
+                          SizedBox(
+                            width: double.infinity,
                             child: ElevatedButton(
                                 onPressed: () async {
                                   /// search filter
@@ -189,210 +194,44 @@ class _HomePageState extends State<HomePage> {
       children: [
         Expanded(
           child: Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(Constants.padding),
             child: SearchAnchor(
               builder: (BuildContext context, SearchController controller) {
                 return Stack(
                   children: [
                     SearchBar(
                       constraints: const BoxConstraints(
-                        minHeight: 45,  
-  ),
+                        minHeight: 45,
+                      ),
                       controller: controller,
                       padding: const WidgetStatePropertyAll<EdgeInsets>(
-                        EdgeInsets.symmetric(horizontal: 16.0),
+                        EdgeInsets.symmetric(horizontal: Constants.padding * 2),
                       ),
                       leading: const Icon(Icons.search),
                       onChanged: (value) async {
                         await viewModel.searchTask(value);
                       },
-                    ), 
+                    ),
                     Row(
                       children: [
                         const Spacer(),
                         IconButton(
-                              icon: const Icon(Icons.filter_list),
-                              onPressed: () => _openFilterSheet(context, viewModel),
-                            ),
+                          icon: const Icon(Icons.filter_list),
+                          onPressed: () => _openFilterSheet(context, viewModel),
+                        ),
                       ],
                     ),
-                
-                
                   ],
                 );
               },
               suggestionsBuilder:
                   (BuildContext context, SearchController controller) {
-                return List<ListTile>.generate(5, (int index) {
-                  final String item = 'item $index';
-                  return ListTile(
-                    title: Text(item),
-                    onTap: () {
-                      setState(() {
-                        controller.closeView(item);
-                      });
-                    },
-                  );
-                });
+                return const Iterable<Widget>.empty();
               },
             ),
           ),
         ),
       ],
-    );
-  }
-}
-
-class TaskListView extends StatefulWidget {
-  const TaskListView({super.key});
-
-  @override
-  State<TaskListView> createState() => _TaskListViewState();
-}
-
-class _TaskListViewState extends State<TaskListView> {
-  @override
-  void initState() {
-    super.initState();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<HomeViewModel>().getAllTask();
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final viewModel = context.watch<HomeViewModel>();
-    final editViewModel = context.watch<EditTaskViewModel>();
-
-    return Expanded(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: ListView.builder(
-          itemCount: viewModel.tasks.isEmpty
-              ? viewModel.allTasks.length
-              : viewModel.tasks.length,
-          itemBuilder: (context, index) {
-            final task = viewModel.tasks.isEmpty
-                ? viewModel.allTasks[index]
-                : viewModel.tasks[index];
-
-            return Dismissible(
-              key: ValueKey(task.id),
-              direction: DismissDirection.endToStart,
-              background: Container(
-                color: Colors.red,
-                alignment: Alignment.centerRight,
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: const Icon(Icons.delete, color: Colors.white),
-              ),
-              onDismissed: (direction) async {
-                if (task.id != null) {
-                  await context.read<HomeViewModel>().removeTask(task.id!);
-                  setState(() {
-                    viewModel.tasks.removeAt(index);
-                  });
-                }
-
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('${task.taskName} Silindi',
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.bodyLarge),
-                    backgroundColor: Colors.red,
-                  ),
-                );
-              },
-              child: ListTile(
-                onTap: () {
-                  final editViewModel = context.read<EditTaskViewModel>();
-
-                  editViewModel.setTask(task);
-
-                  showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    backgroundColor: Colors.transparent,
-                    builder: (_) => TaskFormBottomSheet(
-                      task: task,
-                      selectedFormPage: TaskPageEnum.editForm,
-                    ),
-                  );
-                },
-                leading: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Checkbox(
-                      value: task.isFinished,
-                      onChanged: (value) async {
-                        setState(() {
-                          task.isFinished = value ?? false;
-                        });
-                        if (task.id != null) {
-                          await editViewModel.editTask(task);
-                          if (task.isFinished) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('${task.taskName} Tamamlandı',
-                                    textAlign: TextAlign.center,
-                                    style:
-                                        Theme.of(context).textTheme.bodyLarge),
-                                backgroundColor: Colors.green,
-                              ),
-                            );
-                          }
-                        }
-                      },
-                    ),
-                    CircleAvatar(
-                      child: Text('${index + 1}'),
-                    ),
-                  ],
-                ),
-                title: Text(task.taskName),
-              ),
-            );
-          },
-        ),
-      ),
-    );
-  }
-}
-
-class TaskFormBottomSheet extends StatelessWidget {
-  final Task? task;
-  final TaskPageEnum selectedFormPage;
-  const TaskFormBottomSheet(
-      {super.key, this.task, required this.selectedFormPage});
-
-  @override
-  Widget build(BuildContext context) {
-    Widget content;
-    switch (selectedFormPage) {
-      case TaskPageEnum.addForm:
-        content = const AddTaskPage();
-        break;
-      case TaskPageEnum.editForm:
-        if (task != null) {
-          content = EditTaskPage(task: task!);
-        } else {
-          throw Exception('Task null error');
-        }
-        break;
-    }
-    return DraggableScrollableSheet(
-      initialChildSize: 0.75,
-      minChildSize: 0.25,
-      maxChildSize: 0.75,
-      expand: false,
-      builder: (context, scrollController) {
-        return Container(
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-            ),
-            child: content);
-      },
     );
   }
 }

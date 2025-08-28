@@ -1,18 +1,16 @@
-
 import 'package:flutter/material.dart';
 import 'package:spexco_todo_app/data/Models/task_model.dart';
 import 'package:spexco_todo_app/repository/task_repository.dart';
 import 'package:spexco_todo_app/view/task_detail/base/base_task_form_page.dart';
 
 final class HomeViewModel extends ChangeNotifier {
-
   final TaskRepository _taskRepository;
-    List<Task> _tasks = [];
-    List<Task> get tasks => _tasks;
+  List<Task> _tasks = [];
+  List<Task> get tasks => _tasks;
 
-    List<Task> _allTasks = [];
-    List<Task> get allTasks => _allTasks;
-    
+  List<Task> _allTasks = [];
+  List<Task> get allTasks => _allTasks;
+
   String? _selectedCategory;
   String? _selectedPriority;
 
@@ -22,10 +20,10 @@ final class HomeViewModel extends ChangeNotifier {
   bool get isLoading => _isLoading;
   HomeViewModel(this._taskRepository);
 
-   Future<void> removeTask(int id) async {
-    await _taskRepository.removeTask(id);   
+  Future<void> removeTask(int id) async {
+    await _taskRepository.removeTask(id);
   }
-   
+
   Future<void> filterByCategory(String category) async {
     _isLoading = true;
     notifyListeners();
@@ -34,11 +32,11 @@ final class HomeViewModel extends ChangeNotifier {
 
     _isLoading = false;
     notifyListeners();
-  } 
+  }
 
-    Future<void> searchTask(String query) async {
+  Future<void> searchTask(String query) async {
     if (query.isEmpty) {
-      _tasks = _allTasks; 
+      _tasks = _allTasks;
     } else {
       _tasks = _allTasks
           .where((task) =>
@@ -48,46 +46,42 @@ final class HomeViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-      
-    Future<void> filterByCategoryWithPriority() async {
+  Future<void> filterByCategoryWithPriority() async {
+    _isLoading = true;
+    notifyListeners();
+
+    _tasks = await _taskRepository.getTasksByCategoryWithPriority(
+        _selectedCategory ?? '', _selectedPriority ?? '');
+
+    _isLoading = false;
+    notifyListeners();
+  }
+
+  Future<void> getAllTask() async {
+    try {
       _isLoading = true;
       notifyListeners();
 
-      _tasks = await _taskRepository.getTasksByCategoryWithPriority(
-        _selectedCategory ?? ''
-        , _selectedPriority ?? '' );
-
-      
+      _tasks = await _taskRepository.getAllTasks();
+      _allTasks = _tasks;
       _isLoading = false;
       notifyListeners();
-    }
-
-  Future<void> getAllTask() async {
-    try { 
-          _isLoading = true;
-            notifyListeners();
-
-            _tasks = await _taskRepository.getAllTasks();
-            _allTasks = _tasks;
-            _isLoading = false;
-            notifyListeners();
-                
     } catch (e) {
-          print('Bir hata oluştu $e');
-           
-    } 
+      print('Bir hata oluştu $e');
+    }
   }
-   Future<void> filterByPriority(String priority) async {
+
+  Future<void> filterByPriority(String priority) async {
     _isLoading = true;
     notifyListeners();
-  
+
     _tasks = await _taskRepository.getTasksByPriority(priority);
 
     _isLoading = false;
     notifyListeners();
   }
 
-    void setCategory(String? category) {
+  void setCategory(String? category) {
     _selectedCategory = category;
     notifyListeners();
   }

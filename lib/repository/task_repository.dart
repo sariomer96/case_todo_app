@@ -1,16 +1,14 @@
-
 import 'package:spexco_todo_app/data/Models/task_model.dart';
 import 'package:spexco_todo_app/data/Sqlite/db_manager.dart';
 
 class TaskRepository {
-   final _db = DbManager.instance;
+  final _db = DbManager.instance;
 
-   Future<List<Task>> getAllTasks() async {
+  Future<List<Task>> getAllTasks() async {
     return await _db.getAllTask();
   }
- 
+
   Future<int> addTask(Task task) async {
-  
     return await _db.addTask(task);
   }
 
@@ -22,16 +20,17 @@ class TaskRepository {
     return await _db.removeTask(id);
   }
 
-  Future<List<Task>> getTasksByCategory(String category) async { 
+  Future<List<Task>> getTasksByCategory(String category) async {
     return await _db.getbyCategory(category);
   }
 
-  Future<List<Task>> getTasksByCategoryWithPriority(String category, String priority) async { 
-    return await _db.getbyCategoryWithPriority(category: category,priority: priority);
+  Future<List<Task>> getTasksByCategoryWithPriority(
+      String category, String priority) async {
+    return await _db.getbyCategoryWithPriority(
+        category: category, priority: priority);
   }
 
-Future<List<Task>> getTasksByPriority(String priority) async { 
+  Future<List<Task>> getTasksByPriority(String priority) async {
     return await _db.getbyPriority(priority);
   }
-
 }
