@@ -27,7 +27,7 @@ class TaskRepository {
   }
 
   Future<List<Task>> getTasksByCategoryWithPriority(String category, String priority) async { 
-    return await _db.getbyCategoryWithPriority(category,priority);
+    return await _db.getbyCategoryWithPriority(category: category,priority: priority);
   }
 
 Future<List<Task>> getTasksByPriority(String priority) async { 

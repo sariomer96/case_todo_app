@@ -57,59 +57,62 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _openFilterSheet(BuildContext context,HomeViewModel viewModel) {
-   
-    showGeneralDialog(
-      context: context,
-      barrierDismissible: true,
-      barrierLabel: "Filter",
-      pageBuilder: (context, anim1, anim2) {
-        return Align(
-          alignment: Alignment.centerRight,
-          child: Material(
-            child: Container(
-              width: MediaQuery.of(context).size.width * 0.75, 
-              height: double.infinity,
-              color: Colors.white,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  AppBar(
-                    title: const Text("Filtrele"),
-                    automaticallyImplyLeading: false,
-                    actions: [
-                      IconButton(
-                        icon: const Icon(Icons.close),
-                        onPressed: () => Navigator.pop(context),
-                      )
-                    ],
-                  ),
+       
+          showGeneralDialog(
+            context: context,
+            barrierDismissible: true,
+            barrierLabel: "Filter",
+            pageBuilder: (context, anim1, anim2) {
+              return Align(
+                alignment: Alignment.centerRight,
+                child: Material(
+                  child: Container(
+                    width: MediaQuery.of(context).size.width * 0.75, 
+                    height: double.infinity,
+                    color: Colors.white,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        AppBar(
+                          title: const Text("Filtrele"),
+                          automaticallyImplyLeading: false,
+                          actions: [
+                            IconButton(
+                              icon: const Icon(Icons.close),
+                              onPressed: () => Navigator.pop(context),
+                            )
+                          ],
+                        ),
                                 Expanded(
                             child: Padding(
-                              padding: const EdgeInsets.all(16.0),
+                              padding: const EdgeInsets.all(8.0),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                
-                                  const Text(
+                                       const Text(
                                     "Kategori",
                                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                                   ),
-                                  const SizedBox(height: 8),
-                                  Wrap(
-                                    spacing: 8,
-                                    runSpacing: 8,
-                                    children: Constants.categories.map((cat) {
-                                      return ChoiceChip(
-                                        showCheckmark: true,
-                                        label: Text(cat),
-                                        selected: viewModel.selectedCategory == cat,
-                                        onSelected: (selected) { 
-                                            viewModel.setCategory(cat);                                                                              
-                                        },
-                                      );
-                                    }).toList(),
-                                  ),
-
+                                 Selector<HomeViewModel, String?>(
+                                      selector: (context, vm) => vm.selectedCategory,
+                                      builder: (context, selectedCategory, child) {
+                                        return Wrap(
+                                          spacing: 8,
+                                          runSpacing: 8,
+                                          children: Constants.categories.map((cat) {
+                                            return ChoiceChip(
+                                              showCheckmark: true,
+                                              label: Text(cat),
+                                              selected: selectedCategory == cat,
+                                              onSelected: (selected) {
+                                                final viewModel = Provider.of<HomeViewModel>(context, listen: false);
+                                                viewModel.setCategory(cat);
+                                              },
+                                            );
+                                          }).toList(),
+                                        );
+                                      },
+                                    ),
                                   const SizedBox(height: 24),  
                           
                                   const Text(
@@ -117,27 +120,46 @@ class _HomePageState extends State<HomePage> {
                                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                                   ),
                                   const SizedBox(height: 8),
-                                  Wrap(
-                                    spacing: 8,
-                                    runSpacing: 8,
-                                    children: Constants.priorityColors.keys.map((priority) {
-                                      return ChoiceChip(
-                                        showCheckmark: true,
-                                        label: Text(priority),
-                                        labelStyle: TextStyle(
-                                          color: Constants.priorityColors[priority],
-                                        ),
-                                        selected: viewModel.selectedPriority == priority,
-                                        selectedColor:
-                                            Constants.priorityColors[priority]?.withOpacity(0.2),
-                                        onSelected: (selected) {
-                                                  
-                                             viewModel.setPriority(priority);  
-                                           
-                                        },
-                                      );
-                                    }).toList(),
+                                  Selector<HomeViewModel, String?>(
+                                     selector: (context, vm) => vm.selectedPriority,
+                                      builder: (context, selectedPriority, child) {
+                                        return Wrap(
+                                      spacing: 8,
+                                      runSpacing: 8,
+                                      children: Constants.priorityColors.keys.map((priority) {
+                                        return ChoiceChip(
+                                          showCheckmark: true,
+                                          label: Text(priority),
+                                          labelStyle: TextStyle(
+                                            color: Constants.priorityColors[priority],
+                                          ),
+                                          selected: viewModel.selectedPriority == priority,
+                                          selectedColor:
+                                              Constants.priorityColors[priority]?.withOpacity(0.2),
+                                          onSelected: (selected) {
+                                                    
+                                               viewModel.setPriority(priority);  
+                                             
+                                          },
+                                        );
+                                      }).toList(),
+                                    );}
                                   ),
+
+                                  TextButton(onPressed: () {
+                                      viewModel.setPriority('');
+                                      viewModel.setCategory('');
+                                  }, child: const Text('Filtre Temizle')),
+                                  Align(
+                                    alignment: Alignment.bottomCenter,
+                                    child: ElevatedButton(onPressed: () async {
+                                      /// search filter
+                                      await viewModel.filterByCategoryWithPriority();
+                                      Navigator.pop(context);
+                                    }, child: 
+                                    const Text('Listele',)
+                                    ),
+                                  )
                                 ],
                               ),
                             ),
@@ -228,9 +250,12 @@ class _TaskListViewState extends State<TaskListView> {
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: ListView.builder(
-          itemCount: viewModel.tasks.length,
+          itemCount: viewModel.tasks.isEmpty ? 
+          viewModel.allTasks.length : viewModel.tasks.length,
           itemBuilder: (context, index) {
-            final task = viewModel.tasks[index];
+             final task = viewModel.tasks.isEmpty
+                        ? viewModel.allTasks[index]
+                        : viewModel.tasks[index];
 
             return Dismissible(
               key: ValueKey(task.id),

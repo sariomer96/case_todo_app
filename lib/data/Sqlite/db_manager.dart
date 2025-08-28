@@ -119,25 +119,43 @@ final class DbManager {
       print("getByCategory error: $e");
       return [];
     } 
- }
+ } 
+Future<List<Task>> getbyCategoryWithPriority({String? category, String? priority}) async {
+  try {
+    final db = await instance.database;
+    String whereClause = '';
+    List<String> whereArgs = [];
+ 
+    if (category != null && category.isNotEmpty) {
+      whereClause += 'category = ?';
+      whereArgs.add(category);
+    }
 
-
-  Future<List<Task>> getbyCategoryWithPriority(String category, String priority) async{ 
-          try {
-      final db = await instance.database;
+    if (priority != null && priority.isNotEmpty) {
+      if (whereClause.isNotEmpty) {
+        whereClause += ' AND ';
+      }
+      whereClause += 'priority = ?';
+      whereArgs.add(priority);
+    }
+ 
+    if (whereClause.isEmpty) {
+      final result = await db.query('tasks', orderBy: 'id DESC');
+      return result.map((json) => Task.fromMap(json)).toList();
+    } else {
       final result = await db.query(
         'tasks',
-         orderBy: 'id DESC',
-         where: 'category = ?  AND priority = ?',
-         whereArgs: [category,priority],
-         );
+        orderBy: 'id DESC',
+        where: whereClause,
+        whereArgs: whereArgs,
+      );
       return result.map((json) => Task.fromMap(json)).toList();
-    } catch (e) {
-      print("getbyCategoryWithPriority error: $e");
-      return [];
-    } 
- }
-
+    }
+  } catch (e) {
+    print("getTasksByFilter error: $e");
+    return [];
+  }
+}
   Future<List<Task>> getbyPriority(String priority) async{ 
           try {
       final db = await instance.database;

@@ -9,6 +9,9 @@ final class HomeViewModel extends ChangeNotifier {
   final TaskRepository _taskRepository;
     List<Task> _tasks = [];
     List<Task> get tasks => _tasks;
+
+    List<Task> _allTasks = [];
+    List<Task> get allTasks => _allTasks;
     
   String? _selectedCategory;
   String? _selectedPriority;
@@ -52,7 +55,7 @@ final class HomeViewModel extends ChangeNotifier {
             notifyListeners();
 
             _tasks = await _taskRepository.getAllTasks();
-
+            _allTasks = _tasks;
             _isLoading = false;
             notifyListeners();
                 
