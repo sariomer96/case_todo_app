@@ -1,16 +1,25 @@
-# spexco_todo_app
+# Case Todo App
+  
+Basit ve kullanışlı bir Todo App. Görevlerinizi ekleyebilir, düzenleyebilir ve tamamlayabilirsiniz.
 
-A new Flutter project.
 
-## Getting Started
+   -Özellikler-
 
-This project is a starting point for a Flutter application.
+Görev ekleme, silme ve düzenleme<br>
+Kategori ve öncelik seçimi<br>
+Kategori ve önceliğe göre filtreleme<br>
+Görev arama<br>
+Tamamlanan görevleri işaretleme<br>
+Kullanıcı dostu arayüz
 
-A few resources to get you started if this is your first Flutter project:
+-Teknolojiler-
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+SQLite,<br>
+Provider
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+-Design Pattern-
+
+ MVVM
+
+ Uygulama içi Video ve Apk: <br>
+ https://drive.google.com/drive/folders/1_zVy0Z0z-kTOsGAFHhuR5Q8uVHyu86HD?usp=sharing
