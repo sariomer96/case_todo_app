@@ -7,7 +7,9 @@ Basit ve kullanışlı bir Todo App. Görevlerinizi ekleyebilir, düzenleyebilir
 
 Görev ekleme, silme ve düzenleme<br>
 Kategori ve öncelik seçimi<br>
-Kategori ve önceliğe göre filtreleme<br>
+Kategoriye göre filtreleme<br>
+Kategoriye önceliğe göre filtreleme<br>
+Hem kategori hem önceliğe göre filtreleme<br>
 Görev arama<br>
 Tamamlanan görevleri işaretleme<br>
 Kullanıcı dostu arayüz
