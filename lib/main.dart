@@ -11,8 +11,7 @@ void main() {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(
-            create: (_) => HomeViewModel(TaskRepository())),
+        ChangeNotifierProvider(create: (_) => HomeViewModel(TaskRepository())),
         ChangeNotifierProvider(
             create: (_) => AddTaskViewModel(TaskRepository())),
         ChangeNotifierProvider(

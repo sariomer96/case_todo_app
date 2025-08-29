@@ -41,10 +41,8 @@ class _BaseTaskFormWidgetState<T extends BaseTaskViewModel>
         vm.setCategory("Varsayılan");
         vm.setPriority("Düşük");
       } else {
-        var date = DateTime.tryParse(widget.task!.lastDate);
-        if (date != null) {
-          vm.setDate(date);
-        }
+        final date = DateTime.tryParse(widget.task!.lastDate);
+        if (date != null) vm.setDate(date);
         vm.setCategory(widget.task!.category ?? "Varsayılan");
         vm.setPriority(widget.task!.priority ?? "Düşük");
       }
@@ -104,15 +102,78 @@ class _BaseTaskFormWidgetState<T extends BaseTaskViewModel>
                 }).toList(),
               ),
               const SizedBox(height: 16),
+
+         
               ElevatedButton.icon(
                 onPressed: () async {
+                  final now = DateTime.now();
+                  final today = DateTime(now.year, now.month, now.day);
+
+                  final initial = vm.selectedDate ?? today;
+                  final safeInitial =
+                      initial.isBefore(today) ? today : initial;
+
                   final pickedDate = await showDatePicker(
+                  
                     context: context,
-                    initialDate: vm.selectedDate ?? DateTime.now(),
-                    firstDate: DateTime(2025),
+                    initialDate: safeInitial,
+                    firstDate: today, 
                     lastDate: DateTime(2100),
+
+                    selectableDayPredicate: (DateTime d) {
+                      final dd = DateTime(d.year, d.month, d.day);
+                      return !dd.isBefore(today);
+                    },
+
+                    builder: (context, child) {
+                  
+                      const seed = Colors.grey;
+
+                      final theme = Theme.of(context);
+                      final scheme = ColorScheme.fromSeed(seedColor: seed);
+
+                      return Theme(
+                        data: theme.copyWith(
+                          colorScheme: scheme,
+                          datePickerTheme: DatePickerThemeData(
+                            backgroundColor: scheme.surface,
+                            headerBackgroundColor: scheme.primary,
+                            headerForegroundColor: scheme.onPrimary,
+                            surfaceTintColor: Colors.transparent,
+                            todayForegroundColor:
+                                WidgetStatePropertyAll(scheme.primary),
+                            todayBackgroundColor: WidgetStatePropertyAll(
+                              scheme.primary.withOpacity(0.15),
+                            ),
+                            dayForegroundColor:
+                                WidgetStateProperty.resolveWith((states) {
+                              if (states.contains(WidgetState.selected)) {
+                                return scheme.onPrimary;
+                              }
+                              return null;
+                            }),
+                            dayBackgroundColor:
+                                WidgetStateProperty.resolveWith((states) {
+                              if (states.contains(WidgetState.selected)) {
+                                return scheme.primary;
+                              }
+                              return null;
+                            }),
+                          ),
+                          textButtonTheme: TextButtonThemeData(
+                            style: TextButton.styleFrom(
+                              foregroundColor: scheme.primary,
+                            ),
+                          ),
+                        ),
+                        child: child!,
+                      );
+                    },
                   );
-                  if (pickedDate != null) vm.setDate(pickedDate);
+
+                  if (pickedDate != null) {
+                    vm.setDate(pickedDate);
+                  }
                 },
                 icon: const Icon(Icons.calendar_month),
                 label: Text(
@@ -121,6 +182,8 @@ class _BaseTaskFormWidgetState<T extends BaseTaskViewModel>
                       : "Bitiş Tarihi",
                 ),
               ),
+              // ======= /TARİH SEÇİCİ =======
+
               const SizedBox(height: 32),
               SizedBox(
                 width: double.infinity,
@@ -132,15 +195,18 @@ class _BaseTaskFormWidgetState<T extends BaseTaskViewModel>
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(
-                                    'Görev adı boş bırakılamaz. Lütfen eksik alanları doldurunuz.',
-                                    textAlign: TextAlign.center,
-                                    style:
-                                        Theme.of(context).textTheme.bodyMedium),
+                                  'Görev adı boş bırakılamaz. Lütfen eksik alanları doldurunuz.',
+                                  textAlign: TextAlign.center,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium,
+                                ),
                                 backgroundColor: Colors.red,
                               ),
                             );
                             return;
                           }
+
                           final task = vm.createModel(
                             _nameController.text,
                             _commentController.text,

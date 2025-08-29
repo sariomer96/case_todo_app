@@ -188,51 +188,53 @@ class _HomePageState extends State<HomePage> {
       transitionDuration: const Duration(milliseconds: 300),
     );
   }
-Row _searchFilter(HomeViewModel viewModel) {
-  return Row(
-    children: [
-      Expanded(
-        child: Padding(
-          padding: const EdgeInsets.all(Constants.padding),
-          child: SearchAnchor(
-            builder: (BuildContext context, SearchController controller) {
-              return SearchBar(
-                constraints: const BoxConstraints(
-                  minHeight: 45,
-                ),
-                controller: controller,
-                padding: const WidgetStatePropertyAll<EdgeInsets>(
-                  EdgeInsets.symmetric(horizontal: Constants.padding * 2),
-                ),
-                leading: const Icon(Icons.search),
-                trailing: [
-                  if (controller.text.isNotEmpty)
-                    IconButton(
-                      icon: const Icon(Icons.clear_rounded),
-                      onPressed: () {
-                        controller.clear();
-                        viewModel.searchTask('');  
-                         setState(() {});
-                      },
-                    ),
-                  IconButton(
-                    icon: const Icon(Icons.filter_list),
-                    onPressed: () => _openFilterSheet(context, viewModel),
+
+  Row _searchFilter(HomeViewModel viewModel) {
+    return Row(
+      children: [
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.all(Constants.padding),
+            child: SearchAnchor(
+              builder: (BuildContext context, SearchController controller) {
+                return SearchBar(
+                  constraints: const BoxConstraints(
+                    minHeight: 45,
                   ),
-                ],
-                onChanged: (value) async {
-                  await viewModel.searchTask(value);
-                   setState(() {});
-                },
-              );
-            },
-            suggestionsBuilder: (BuildContext context, SearchController controller) {
-              return const Iterable<Widget>.empty();
-            },
+                  controller: controller,
+                  padding: const WidgetStatePropertyAll<EdgeInsets>(
+                    EdgeInsets.symmetric(horizontal: Constants.padding * 2),
+                  ),
+                  leading: const Icon(Icons.search),
+                  trailing: [
+                    if (controller.text.isNotEmpty)
+                      IconButton(
+                        icon: const Icon(Icons.clear_rounded),
+                        onPressed: () {
+                          controller.clear();
+                          viewModel.searchTask('');
+                          setState(() {});
+                        },
+                      ),
+                    IconButton(
+                      icon: const Icon(Icons.filter_list),
+                      onPressed: () => _openFilterSheet(context, viewModel),
+                    ),
+                  ],
+                  onChanged: (value) async {
+                    await viewModel.searchTask(value);
+                    setState(() {});
+                  },
+                );
+              },
+              suggestionsBuilder:
+                  (BuildContext context, SearchController controller) {
+                return const Iterable<Widget>.empty();
+              },
+            ),
           ),
         ),
-      ),
-    ],
-  );
-}
+      ],
+    );
+  }
 }
